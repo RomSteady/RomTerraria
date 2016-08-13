@@ -70,6 +70,11 @@ namespace RTRewriter
                         rewriter.SwapLeftRightMouseButtons();
                     }
 
+                    if (chkDoubleUISize.Checked)
+                    {
+                        rewriter.DoubleUISize();
+                    }
+
                     rewriter.Save();
                 }
                 MessageBox.Show(String.Format("You now have Terraria.exe in your Terraria save game folder:\n{0}\n\n" +

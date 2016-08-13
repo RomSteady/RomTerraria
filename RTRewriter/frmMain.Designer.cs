@@ -40,6 +40,7 @@
             this.chkSwapLeftRight = new System.Windows.Forms.CheckBox();
             this.chkAlwaysGravityGlobe = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.chkDoubleUISize = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.SuspendLayout();
@@ -98,7 +99,7 @@
             // 
             // btnUpdate
             // 
-            this.btnUpdate.Location = new System.Drawing.Point(512, 382);
+            this.btnUpdate.Location = new System.Drawing.Point(512, 465);
             this.btnUpdate.Name = "btnUpdate";
             this.btnUpdate.Size = new System.Drawing.Size(170, 43);
             this.btnUpdate.TabIndex = 4;
@@ -108,7 +109,7 @@
             // 
             // btnOpenFolder
             // 
-            this.btnOpenFolder.Location = new System.Drawing.Point(168, 382);
+            this.btnOpenFolder.Location = new System.Drawing.Point(168, 465);
             this.btnOpenFolder.Name = "btnOpenFolder";
             this.btnOpenFolder.Size = new System.Drawing.Size(341, 43);
             this.btnOpenFolder.TabIndex = 3;
@@ -130,12 +131,13 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.chkDoubleUISize);
             this.groupBox3.Controls.Add(this.chkSwapLeftRight);
             this.groupBox3.Controls.Add(this.chkAlwaysGravityGlobe);
             this.groupBox3.Controls.Add(this.chkDisableAchievements);
             this.groupBox3.Location = new System.Drawing.Point(13, 174);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(669, 202);
+            this.groupBox3.Size = new System.Drawing.Size(669, 285);
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Other Requests From People Using This Tool";
@@ -163,11 +165,22 @@
             this.toolTip1.SetToolTip(this.chkAlwaysGravityGlobe, "Pressing Up (default: W) will invert gravity.");
             this.chkAlwaysGravityGlobe.UseVisualStyleBackColor = true;
             // 
+            // chkDoubleUISize
+            // 
+            this.chkDoubleUISize.AutoSize = true;
+            this.chkDoubleUISize.Location = new System.Drawing.Point(6, 146);
+            this.chkDoubleUISize.Name = "chkDoubleUISize";
+            this.chkDoubleUISize.Size = new System.Drawing.Size(552, 32);
+            this.chkDoubleUISize.TabIndex = 4;
+            this.chkDoubleUISize.Text = "Double The Size Of The UI Where Possible (EXPERIMENTAL)";
+            this.toolTip1.SetToolTip(this.chkDoubleUISize, "Pressing Up (default: W) will invert gravity.");
+            this.chkDoubleUISize.UseVisualStyleBackColor = true;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 28F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(694, 441);
+            this.ClientSize = new System.Drawing.Size(694, 520);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.btnOpenFolder);
             this.Controls.Add(this.btnUpdate);
@@ -200,6 +213,7 @@
         private System.Windows.Forms.CheckBox chkAlwaysGravityGlobe;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.CheckBox chkSwapLeftRight;
+        private System.Windows.Forms.CheckBox chkDoubleUISize;
     }
 }
 

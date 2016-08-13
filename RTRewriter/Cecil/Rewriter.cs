@@ -1,5 +1,6 @@
 ﻿using Mono.Cecil;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
@@ -62,6 +63,94 @@ namespace RTRewriter.Cecil
 
             // To kill Steam, I need to find the Nullable:SocialMode constructor in
             // Terraria.Program.InternalMain and change it to "None," but let's try this without it.
+        }
+
+        public void DoubleUISize()
+        {
+            var mainType = CecilHelpers.FindTypeInAssembly(terraria, "Terraria.Main");
+            var inventoryScaleField = CecilHelpers.FindFieldInType(mainType, "inventoryScale");
+            var inventoryMethod = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Main::DrawInventory()");
+            // There are multiple locations inside DrawInventory where it sets the scale of the inventory draw.  Let's just override them.
+
+            var addTimesTwoAfter = new List<Mono.Cecil.Cil.Instruction>();
+
+            foreach (var instruction in inventoryMethod.Body.Instructions)
+            {
+                if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stsfld)
+                {
+                    if (instruction.Operand == inventoryScaleField)
+                    {
+                        if (instruction.Previous.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_R4 &&
+                            instruction.Previous.Operand.GetType() == typeof(System.Single))
+                        {
+                            Single prev = (Single)instruction.Previous.Operand;
+                            prev *= 2;
+                            instruction.Previous.Operand = prev;
+                        }
+                        else
+                        {
+                            // Calculated scale...let's fix that later
+                            addTimesTwoAfter.Add(instruction.Previous);
+                        }
+                    }
+                }
+                else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4 || instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_R4)
+                {
+                    // Layout constants - sometimes, they're floats, other times, they're ints.  Treat them the same.
+                    int value = Convert.ToInt32(instruction.Operand);
+                    switch(value)
+                    {
+                        // Inventory and chests
+                        case 168:
+                        case 258:
+                        case 448:
+                        case 224:
+                        //case 498:
+                        case 534:
+                        // Equipment
+                        case -47:
+                        case 47:
+                        case 92:
+                        case 32:
+                        case 440:
+                        case 58:
+                        case 56:
+                        case 64:
+                        // Buffs:
+                        case 46:
+                        case 260:
+                        // Crafting
+                        case 118:
+                        case 73:
+                        case 331:
+                        case 26:
+                        case 50:
+
+                            value *= 2;
+                            break;
+                        default:
+                            break; // We don't recognize the value, so we won't double it.
+                    }
+
+                    if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4)
+                    {
+                        instruction.Operand = value;
+                    } else
+                    {
+                        instruction.Operand = (float)value;
+                    }
+                }
+            }
+
+            var processor = inventoryMethod.Body.GetILProcessor();
+            foreach (var instruction in addTimesTwoAfter)
+            {
+                var insertTwoInstruction = processor.Create(Mono.Cecil.Cil.OpCodes.Ldc_R4, 2.0f);
+                processor.InsertAfter(instruction, insertTwoInstruction);
+                var multiplyInstruction = processor.Create(Mono.Cecil.Cil.OpCodes.Mul);
+                processor.InsertAfter(insertTwoInstruction, multiplyInstruction);
+
+            }
         }
 
         public void FixConfigFileNames()
