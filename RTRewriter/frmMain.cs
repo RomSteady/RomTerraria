@@ -81,7 +81,7 @@ namespace RTRewriter
                     "Rename Terraria.exe in your Terraria folder to Terraria.Original.exe.\n\n" +
                     "Copy Terraria.exe, Terraria.exe.config, and RTHooks.dll from your save folder to your Terraria folder, then launch via Steam.", NewLocation));
             }
-            catch (Exception ex)
+            catch (System.IO.InvalidDataException ex)
             {
                 MessageBox.Show(String.Format("{0}\n\n{1}", ex.GetType().ToString(), ex.Message), "Oops!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }

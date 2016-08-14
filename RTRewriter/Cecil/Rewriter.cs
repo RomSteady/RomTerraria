@@ -69,47 +69,82 @@ namespace RTRewriter.Cecil
         {
             var mainType = CecilHelpers.FindTypeInAssembly(terraria, "Terraria.Main");
             var inventoryScaleField = CecilHelpers.FindFieldInType(mainType, "inventoryScale");
+            var reforgeScaleField = CecilHelpers.FindFieldInType(mainType, "reforgeScale");
             var inventoryMethod = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Main::DrawInventory()");
+
+            var processor = inventoryMethod.Body.GetILProcessor();
             // There are multiple locations inside DrawInventory where it sets the scale of the inventory draw.  Let's just override them.
 
             var addTimesTwoAfter = new List<Mono.Cecil.Cil.Instruction>();
+            var replaceOperations = new Dictionary<Mono.Cecil.Cil.Instruction, int>();
+           
 
             foreach (var instruction in inventoryMethod.Body.Instructions)
             {
                 if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stsfld)
                 {
-                    if (instruction.Operand == inventoryScaleField)
+                    if (instruction.Operand == inventoryScaleField ||
+                        instruction.Operand == reforgeScaleField)
                     {
-                        if (instruction.Previous.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_R4 &&
-                            instruction.Previous.Operand.GetType() == typeof(System.Single))
-                        {
-                            Single prev = (Single)instruction.Previous.Operand;
-                            prev *= 2;
-                            instruction.Previous.Operand = prev;
-                        }
-                        else
-                        {
-                            // Calculated scale...let's fix that later
-                            addTimesTwoAfter.Add(instruction.Previous);
-                        }
+                        // Calculated scale...let's fix that later
+                        addTimesTwoAfter.Add(instruction.Previous);
                     }
                 }
-                else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4 || instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_R4)
+          
+                else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4 || 
+                         instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_R4 ||
+                         instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4_S)
                 {
                     // Layout constants - sometimes, they're floats, other times, they're ints.  Treat them the same.
+                  
                     int value = Convert.ToInt32(instruction.Operand);
+
                     switch(value)
                     {
-                        // Inventory and chests
-                        case 168:
-                        case 258:
-                        case 448:
-                        case 224:
-                        //case 498:
+
+                        // Coins/ammo
+                        case 496:
+                        case 497:
+                        case 498:
+                            value = 1150;
+                            break;
+                        case 532:
+                        case 533:
                         case 534:
+                            value = 1275;
+                            break;
+                        
+                        // Sort/deposit icons
+                        case 244:
+                            value = 580;
+                            break;
+
+                        // Trash
+                        case 448:
+                            value = 1028;
+                            break;
+                        case 258:
+                            value = 580;
+                            break;
+
                         // Equipment
                         case -47:
+                            value = -100;
+                            break;
                         case 47:
+                            value = 100;
+                            break;
+
+                        // Below here, generically double
+                        // Inventory and chests
+                        case 168:
+                        //case 85:
+                        //case 54:
+                        // Equipment
+                        //case 174:
+                        
+
+                            /*
                         case 92:
                         case 32:
                         case 440:
@@ -119,30 +154,64 @@ namespace RTRewriter.Cecil
                         // Buffs:
                         case 46:
                         case 260:
-                        // Crafting
+                        
+                        // Crafting / Recipes
                         case 118:
                         case 73:
                         case 331:
                         case 26:
                         case 50:
-
+                        case 42:
+                        case 150:
+                        case 94:
+                        case 450:
+                        case 340:
+                        case 310:
+                        case 280:
+                        //case 20:
+                        //case 40:
+                        //case 80:
+                        case 380:
+                        // UI Elements
+                        case 302:
+                        //case 30:
+                        */
                             value *= 2;
                             break;
                         default:
                             break; // We don't recognize the value, so we won't double it.
                     }
 
+
                     if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4)
                     {
                         instruction.Operand = value;
-                    } else
+                    }
+                    else if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Ldc_I4_S)
+                    {
+                        if (value >= -128 && value <= 127)
+                        {
+                            instruction.Operand = (sbyte)value;
+                        }
+                        else
+                        {
+                            //replaceOperations.Add(instruction, value);
+                        }
+                    }
+                    else
                     {
                         instruction.Operand = (float)value;
                     }
                 }
+               
             }
 
-            var processor = inventoryMethod.Body.GetILProcessor();
+            foreach (var instruction in replaceOperations.Keys)
+            {
+                var replacementInstruction = processor.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4, replaceOperations[instruction]);
+                processor.Replace(instruction, replacementInstruction);
+            }
+
             foreach (var instruction in addTimesTwoAfter)
             {
                 var insertTwoInstruction = processor.Create(Mono.Cecil.Cil.OpCodes.Ldc_R4, 2.0f);

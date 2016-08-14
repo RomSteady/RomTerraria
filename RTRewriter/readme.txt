@@ -1,5 +1,5 @@
 RomTerraria 4.0
-Copyright © 2011-2015 Michael Russell.  All Rights Reserved.
+Copyright © 2011-2016 Michael Russell.  All Rights Reserved.
 
 This software is only to be used with legal copies of Terraria.
 
@@ -9,7 +9,7 @@ Terraria © 2011 Relogic.  All Rights Reserved.
 
 RomTerraria 4.0 contains no code from Terraria.
 
-This version of the software has been tested using Terraria 1.3.1 on a 4K monitor.
+This version of the software has been tested using Terraria 1.3.2.1 on a 4K monitor.
 
 To use:
 
