@@ -135,47 +135,54 @@ namespace RTRewriter.Cecil
                             value = 100;
                             break;
 
+                        // Crafting menu
+                        case 42:
+                            value = 100;
+                            break;
+
                         // Below here, generically double
-                        // Inventory and chests
                         case 168:
-                        //case 85:
-                        //case 54:
-                        // Equipment
-                        //case 174:
-                        
+                            //case 85:
+                            //case 54:
+                            // Equipment
+                            //case 174:
+
 
                             /*
                         case 92:
                         case 32:
                         case 440:
-                        case 58:
-                        case 56:
-                        case 64:
-                        // Buffs:
-                        case 46:
-                        case 260:
-                        
-                        // Crafting / Recipes
-                        case 118:
-                        case 73:
-                        case 331:
-                        case 26:
-                        case 50:
-                        case 42:
-                        case 150:
-                        case 94:
-                        case 450:
-                        case 340:
-                        case 310:
-                        case 280:
-                        //case 20:
-                        //case 40:
-                        //case 80:
-                        case 380:
-                        // UI Elements
-                        case 302:
-                        //case 30:
                         */
+                            /*
+                            // case 58: // Don't double 58 because it slides too many things off screen
+                            // case 56: // Don't double 56 because it screws up all other layouts
+
+                            case 64:
+                            // Buffs:
+                            case 46:
+                            case 260:
+
+                            // Crafting / Recipes
+                            case 118:
+                            case 73:
+                            case 331:
+                            case 26:
+                            case 50:
+                            case 42:
+                            case 150:
+                            case 94:
+                            case 450:
+                            case 340:
+                            case 310:
+                            case 280:
+                            //case 20:
+                            //case 40:
+                            //case 80:
+                            case 380:
+                            // UI Elements
+                            case 302:
+                            //case 30:
+                            */
                             value *= 2;
                             break;
                         default:
