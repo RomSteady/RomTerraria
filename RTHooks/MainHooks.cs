@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using RTHooks.Components;
+using System;
 using System.Reflection;
 
 namespace RTHooks
@@ -25,6 +27,14 @@ namespace RTHooks
                         dayTime.SetValue(null, true);
                     }
                 }
+            }
+
+            Game game = terrariaMain as Game;
+            if (game != null)
+            {
+                // Hook in game components
+                RainMaker rainMaker = new RainMaker(game);
+                game.Components.Add(rainMaker);
             }
         }
     }
