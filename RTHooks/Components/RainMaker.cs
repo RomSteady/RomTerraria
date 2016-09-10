@@ -29,7 +29,7 @@ namespace RTHooks.Components
         {
             base.Update(gameTime);
             elapsedTime = elapsedTime.Add(gameTime.ElapsedGameTime);
-            if (elapsedTime > tick)
+            while (elapsedTime > tick)
             {
                 elapsedTime = elapsedTime.Subtract(tick);
                 // TODO: If we're in single player, generate a "rain" tile every tick

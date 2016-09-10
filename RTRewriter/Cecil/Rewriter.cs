@@ -65,6 +65,11 @@ namespace RTRewriter.Cecil
             // Terraria.Program.InternalMain and change it to "None," but let's try this without it.
         }
 
+        public void AddRainComponent()
+        {
+            //throw new NotImplementedException();
+        }
+
         public void DoubleUISize()
         {
             var mainType = CecilHelpers.FindTypeInAssembly(terraria, "Terraria.Main");

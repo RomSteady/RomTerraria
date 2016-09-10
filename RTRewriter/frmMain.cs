@@ -75,6 +75,11 @@ namespace RTRewriter
                         rewriter.DoubleUISize();
                     }
 
+                    if (chkRealRain.Checked)
+                    {
+                        rewriter.AddRainComponent();
+                    }
+
                     rewriter.Save();
                 }
                 MessageBox.Show(String.Format("You now have Terraria.exe in your Terraria save game folder:\n{0}\n\n" +

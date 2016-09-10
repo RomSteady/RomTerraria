@@ -37,10 +37,11 @@
             this.btnOpenFolder = new System.Windows.Forms.Button();
             this.chkDisableAchievements = new System.Windows.Forms.CheckBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.chkRealRain = new System.Windows.Forms.CheckBox();
+            this.chkDoubleUISize = new System.Windows.Forms.CheckBox();
             this.chkSwapLeftRight = new System.Windows.Forms.CheckBox();
             this.chkAlwaysGravityGlobe = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.chkDoubleUISize = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.SuspendLayout();
@@ -131,6 +132,7 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.chkRealRain);
             this.groupBox3.Controls.Add(this.chkDoubleUISize);
             this.groupBox3.Controls.Add(this.chkSwapLeftRight);
             this.groupBox3.Controls.Add(this.chkAlwaysGravityGlobe);
@@ -141,6 +143,29 @@
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Other Requests From People Using This Tool";
+            // 
+            // chkRealRain
+            // 
+            this.chkRealRain.AutoSize = true;
+            this.chkRealRain.Enabled = false;
+            this.chkRealRain.Location = new System.Drawing.Point(6, 184);
+            this.chkRealRain.Name = "chkRealRain";
+            this.chkRealRain.Size = new System.Drawing.Size(515, 32);
+            this.chkRealRain.TabIndex = 5;
+            this.chkRealRain.Text = "Create Actual Rain During Rainstorms (EXPERIMENTAL)";
+            this.toolTip1.SetToolTip(this.chkRealRain, "Causes water to be created at the top of the world around where the player is.");
+            this.chkRealRain.UseVisualStyleBackColor = true;
+            // 
+            // chkDoubleUISize
+            // 
+            this.chkDoubleUISize.AutoSize = true;
+            this.chkDoubleUISize.Location = new System.Drawing.Point(6, 146);
+            this.chkDoubleUISize.Name = "chkDoubleUISize";
+            this.chkDoubleUISize.Size = new System.Drawing.Size(552, 32);
+            this.chkDoubleUISize.TabIndex = 4;
+            this.chkDoubleUISize.Text = "Double The Size Of The UI Where Possible (EXPERIMENTAL)";
+            this.toolTip1.SetToolTip(this.chkDoubleUISize, "Pressing Up (default: W) will invert gravity.");
+            this.chkDoubleUISize.UseVisualStyleBackColor = true;
             // 
             // chkSwapLeftRight
             // 
@@ -164,17 +189,6 @@
             this.chkAlwaysGravityGlobe.Text = "Always Act Like You Have Gravity Globe";
             this.toolTip1.SetToolTip(this.chkAlwaysGravityGlobe, "Pressing Up (default: W) will invert gravity.");
             this.chkAlwaysGravityGlobe.UseVisualStyleBackColor = true;
-            // 
-            // chkDoubleUISize
-            // 
-            this.chkDoubleUISize.AutoSize = true;
-            this.chkDoubleUISize.Location = new System.Drawing.Point(6, 146);
-            this.chkDoubleUISize.Name = "chkDoubleUISize";
-            this.chkDoubleUISize.Size = new System.Drawing.Size(552, 32);
-            this.chkDoubleUISize.TabIndex = 4;
-            this.chkDoubleUISize.Text = "Double The Size Of The UI Where Possible (EXPERIMENTAL)";
-            this.toolTip1.SetToolTip(this.chkDoubleUISize, "Pressing Up (default: W) will invert gravity.");
-            this.chkDoubleUISize.UseVisualStyleBackColor = true;
             // 
             // frmMain
             // 
@@ -214,6 +228,7 @@
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.CheckBox chkSwapLeftRight;
         private System.Windows.Forms.CheckBox chkDoubleUISize;
+        private System.Windows.Forms.CheckBox chkRealRain;
     }
 }
 
