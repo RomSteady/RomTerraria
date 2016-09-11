@@ -264,6 +264,7 @@ namespace RTRewriter.Cecil
             var method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Main::.cctor()");
             CecilHelpers.ChangeDefaultInt32Value(method, "System.Int32 Terraria.Main::maxScreenW", NewMaxResolution);
             CecilHelpers.ChangeDefaultInt32Value(method, "System.Int32 Terraria.Main::maxScreenH", NewMaxResolution);
+            CecilHelpers.ChangeDefaultInt32Value(method, "System.Int32 Terraria.Main::_renderTargetMaxSize", NewMaxResolution);
 
             // Replace InitTargets()
             method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Main::InitTargets()");

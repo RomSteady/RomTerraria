@@ -221,8 +221,8 @@ namespace RTHooks
             FieldInfo tile2Target = gameType.GetField("tile2Target", BindingFlags.Instance | BindingFlags.NonPublic);
             FieldInfo wallTarget = gameType.GetField("wallTarget", BindingFlags.Instance | BindingFlags.NonPublic);
             FieldInfo backgroundTarget = gameType.GetField("backgroundTarget", BindingFlags.Instance | BindingFlags.NonPublic);
-            FieldInfo screenTarget = gameType.GetField("screenTarget", BindingFlags.Instance); // Made public static in 1.3.3
-            FieldInfo screenTargetSwap = gameType.GetField("screenTargetSwap", BindingFlags.Instance); // New field in 1.3.3
+            FieldInfo screenTarget = gameType.GetField("screenTarget"); // Made public static in 1.3.3
+            FieldInfo screenTargetSwap = gameType.GetField("screenTargetSwap"); // New field in 1.3.3
             FieldInfo spriteBatch = gameType.GetField("spriteBatch"); // Made public static in 1.2.3.1 
             FieldInfo drawToScreen = gameType.GetField("drawToScreen"); // New field in 1.3.x
 
@@ -254,18 +254,18 @@ namespace RTHooks
                         _offScreenRange = Math.Min(_offScreenRange, height - game.GraphicsDevice.PresentationParameters.BackBufferWidth);
                     }
 
-                    NameCatch("waterTarget", () => SetRenderTarget(terrariaMain, waterTarget, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24)));
-                    NameCatch("backWaterTarget", () => SetRenderTarget(terrariaMain, backWaterTarget, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24)));
-                    NameCatch("blackTarget", () => SetRenderTarget(terrariaMain, blackTarget, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24)));
-                    NameCatch("tileTarget", () => SetRenderTarget(terrariaMain, tileTarget, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24)));
-                    NameCatch("tile2Target", () => SetRenderTarget(terrariaMain, tile2Target, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24)));
-                    NameCatch("wallTarget", () => SetRenderTarget(terrariaMain, wallTarget, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24)));
-                    NameCatch("backgroundTarget", () => SetRenderTarget(terrariaMain, backgroundTarget, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24)));
-                    NameCatch("screenTarget", () => SetRenderTarget(terrariaMain, screenTarget, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24)));
-                    NameCatch("screenTargetSwap", () => SetRenderTarget(terrariaMain, screenTargetSwap, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth24)));
+                    NameCatch("waterTarget", () => SetRenderTarget(terrariaMain, waterTarget, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth16)));
+                    NameCatch("backWaterTarget", () => SetRenderTarget(terrariaMain, backWaterTarget, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth16)));
+                    NameCatch("blackTarget", () => SetRenderTarget(terrariaMain, blackTarget, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth16)));
+                    NameCatch("tileTarget", () => SetRenderTarget(terrariaMain, tileTarget, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth16)));
+                    NameCatch("tile2Target", () => SetRenderTarget(terrariaMain, tile2Target, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth16)));
+                    NameCatch("wallTarget", () => SetRenderTarget(terrariaMain, wallTarget, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth16)));
+                    NameCatch("backgroundTarget", () => SetRenderTarget(terrariaMain, backgroundTarget, new RenderTarget2D(game.GraphicsDevice, width, height, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth16)));
+                    NameCatch("screenTarget", () => SetRenderTarget(terrariaMain, screenTarget, new RenderTarget2D(game.GraphicsDevice, game.GraphicsDevice.PresentationParameters.BackBufferWidth, game.GraphicsDevice.PresentationParameters.BackBufferHeight, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth16)));
+                    NameCatch("screenTargetSwap", () => SetRenderTarget(terrariaMain, screenTargetSwap, new RenderTarget2D(game.GraphicsDevice, game.GraphicsDevice.PresentationParameters.BackBufferWidth, game.GraphicsDevice.PresentationParameters.BackBufferHeight, false, game.GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.Depth16)));
 
                     targetSet.SetValue(terrariaMain, true);
-                    drawToScreen.SetValue(terrariaMain, false);
+                    //drawToScreen.SetValue(terrariaMain, false);
                 }
             }
             catch (Exception ex)

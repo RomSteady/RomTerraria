@@ -59,12 +59,14 @@ namespace RTRewriter.Cecil
 
         public static void ChangeDefaultInt32Value(MethodDefinition method, string fieldName, int newValue)
         {
+            Debug.WriteLine(String.Format("Changing the default value for {0} to {1}", fieldName, newValue), "CecilHelpers");
             var il = method.Body.GetILProcessor();
             foreach (var instruction in il.Body.Instructions)
             {
                 if (instruction.OpCode == Mono.Cecil.Cil.OpCodes.Stsfld)
                 {
                     var field = (FieldDefinition)instruction.Operand;
+                    Debug.WriteLine(String.Format("Looking at store to {0}", field.FullName), "CecilHelpers");
                     if (field.FullName == fieldName)
                     {
                         var previnst = instruction.Previous;
