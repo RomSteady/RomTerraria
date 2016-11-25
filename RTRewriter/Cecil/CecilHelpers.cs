@@ -34,7 +34,7 @@ namespace RTRewriter.Cecil
                 {
                     foreach (var method in type.Methods)
                     {
-                        Debug.WriteLine(method.FullName);
+                        //Debug.WriteLine(method.FullName);
                         if (method.FullName == methodName)
                         {
                             return method;
@@ -124,6 +124,20 @@ namespace RTRewriter.Cecil
                     method.Body.Instructions[i].Operand = newString;
                 }
             }
+        }
+
+        public static void LaunchDebuggerAtMethodEntry(MethodDefinition method)
+        {
+            string path = System.Reflection.Assembly.GetAssembly(typeof(System.Diagnostics.Debugger)).Location;
+            AssemblyDefinition mscorlib = AssemblyDefinition.ReadAssembly(path);
+            var debuggerLaunch = FindMethodInAssembly(mscorlib, "System.Boolean System.Diagnostics.Debugger::Launch()");
+            var processor = method.Body.GetILProcessor();
+            var firstInstruction = method.Body.Instructions[0];
+            var callInstruction = processor.Create(Mono.Cecil.Cil.OpCodes.Call, method.Module.Import(debuggerLaunch));
+            processor.InsertBefore(firstInstruction, callInstruction);
+
+            var popInstruction = processor.Create(Mono.Cecil.Cil.OpCodes.Pop);
+            processor.InsertAfter(callInstruction, popInstruction);
         }
     }
 }

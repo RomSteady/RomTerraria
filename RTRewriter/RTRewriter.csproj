@@ -115,6 +115,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ReplacementLiquidRenderer\ReplacementLiquidRenderer.csproj">
+      <Project>{7e3ffaf9-23ab-4bcf-9d4a-1270e25fe537}</Project>
+      <Name>ReplacementLiquidRenderer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RTHooks\RTHooks.csproj">
       <Project>{080B7CB0-CCA6-41EB-8C3D-D38B6F886C06}</Project>
       <Name>RTHooks</Name>

@@ -30,15 +30,16 @@ namespace RTRewriter
             string inFile = String.Format(@"{0}\Terraria.exe", GamePath);
             string outFile = String.Format(@"{0}\Terraria.exe", NewLocation);
             System.IO.File.Copy("RTHooks.dll", String.Format(@"{0}\RTHooks.dll", NewLocation), true);
+            System.IO.File.Copy("ReplacementLiquidRenderer.dll", String.Format(@"{0}\ReplacementLiquidRenderer.dll", NewLocation), true);
             System.IO.File.Copy("Terraria.exe.config", String.Format(@"{0}\Terraria.exe.config", NewLocation), true);
 
             try
             {
                 using (Cecil.Rewriter rewriter = new Cecil.Rewriter(inFile, outFile))
                 {
-                    rewriter.CondenseSteam();
                     rewriter.FixConfigFileNames();
                     rewriter.ChangeWorkingDirectory();
+                    rewriter.ReplaceLiquidRenderer();
 
                     if (chkEnableHiDef.Checked)
                     {
@@ -84,7 +85,7 @@ namespace RTRewriter
                 }
                 MessageBox.Show(String.Format("You now have Terraria.exe in your Terraria save game folder:\n{0}\n\n" +
                     "Rename Terraria.exe in your Terraria folder to Terraria.Original.exe.\n\n" +
-                    "Copy Terraria.exe, Terraria.exe.config, and RTHooks.dll from your save folder to your Terraria folder, then launch via Steam.", NewLocation));
+                    "Copy Terraria.exe, Terraria.exe.config, ReplacementLiquidRenderer.dll, and RTHooks.dll from your save folder to your Terraria folder, then launch via Steam.", NewLocation));
             }
             catch (System.IO.InvalidDataException ex)
             {

@@ -10,6 +10,7 @@ namespace RTRewriter.Cecil
     {
         private AssemblyDefinition terraria;
         private AssemblyDefinition hooks;
+        private AssemblyDefinition liquid;
         private string assemblyOut;
 
         private const int NewMaxResolution = 8192;
@@ -21,6 +22,7 @@ namespace RTRewriter.Cecil
         {
             terraria = AssemblyDefinition.ReadAssembly(assemblyIn);
             hooks = AssemblyDefinition.ReadAssembly("RTHooks.dll");
+            liquid = AssemblyDefinition.ReadAssembly("ReplacementLiquidRenderer.dll");
 
             foreach (var module in terraria.MainModule.AssemblyReferences)
             {
@@ -40,29 +42,6 @@ namespace RTRewriter.Cecil
                 hidefprofilestream.Close();
                 hidefprofilestream = null;
             }
-        }
-
-        public void CondenseSteam()
-        {
-            /*
-            // Condense the Kill method
-            CecilHelpers.TurnMethodToNoOp(terraria, "System.Void Terraria.Steam::Kill()");
-
-            // Handle the normal Steam checks
-            //var method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Steam::.cctor()");
-            var method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Steam::Init()");
-            var processor = method.Body.GetILProcessor();
-            var firstInstruction = method.Body.Instructions[0];
-            var newInstruction = processor.Create(Mono.Cecil.Cil.OpCodes.Ldc_I4_1);
-            processor.InsertBefore(firstInstruction, newInstruction);
-            var nextInstruction = processor.Create(Mono.Cecil.Cil.OpCodes.Stsfld, CecilHelpers.FindFieldInType(method.DeclaringType, "SteamInit"));
-            processor.InsertAfter(newInstruction, nextInstruction);
-            var finalInstruction = processor.Create(Mono.Cecil.Cil.OpCodes.Ret);
-            processor.InsertAfter(nextInstruction, finalInstruction);
-            */
-
-            // To kill Steam, I need to find the Nullable:SocialMode constructor in
-            // Terraria.Program.InternalMain and change it to "None," but let's try this without it.
         }
 
         public void AddRainComponent()
@@ -261,10 +240,14 @@ namespace RTRewriter.Cecil
 
         public void UpMaxResolution()
         {
+
             var method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Main::.cctor()");
             CecilHelpers.ChangeDefaultInt32Value(method, "System.Int32 Terraria.Main::maxScreenW", NewMaxResolution);
             CecilHelpers.ChangeDefaultInt32Value(method, "System.Int32 Terraria.Main::maxScreenH", NewMaxResolution);
             CecilHelpers.ChangeDefaultInt32Value(method, "System.Int32 Terraria.Main::_renderTargetMaxSize", NewMaxResolution);
+
+            //DEBUG
+            CecilHelpers.ChangeDefaultBooleanValue(method, "System.Boolean Terraria.Main::SkipAssemblyLoad", true);
 
             // Replace InitTargets()
             method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Main::InitTargets()");
@@ -297,6 +280,7 @@ namespace RTRewriter.Cecil
             processor.InsertBefore(firstInstruction, newInstruction);
             nextInstruction = processor.Create(Mono.Cecil.Cil.OpCodes.Call, method.Module.Import(hookMethod));
             processor.InsertAfter(newInstruction, nextInstruction);
+
         }
 
         public void CooperativeFullscreen()
@@ -373,6 +357,7 @@ namespace RTRewriter.Cecil
             // Call the hook
             var callInstruction = processor.Create(Mono.Cecil.Cil.OpCodes.Call, method.Module.Import(hookMethod));
             processor.InsertAfter(alwaysDaylightInstruction, callInstruction);
+
         }
 
         public void EnableHiDefProfile()
@@ -473,6 +458,76 @@ namespace RTRewriter.Cecil
         public void DisableAchievements()
         {
             CecilHelpers.TurnMethodToNoOp(terraria, "System.Void Terraria.Achievements.Achievement::OnConditionComplete(Terraria.Achievements.AchievementCondition)");
+        }
+
+        private Dictionary<string, MethodDefinition> GetMethodMap(TypeDefinition typ)
+        {
+            var ret = new Dictionary<string, MethodDefinition>();
+            foreach(var method in typ.Methods)
+            {
+                var splitName = method.FullName.Split(new string[] { "::" }, StringSplitOptions.None);
+                if (splitName.Length == 2)
+                {
+                    ret[splitName[1]] = method;
+                }
+            }
+            return ret;
+        }
+
+        private void ReplaceLiquidRendererInMethod(MethodDefinition method)
+        {
+            var oldType = CecilHelpers.FindTypeInAssembly(terraria, "Terraria.GameContent.Liquid.LiquidRenderer");
+            var oldField = CecilHelpers.FindFieldInType(oldType, "Instance");
+            var newType = CecilHelpers.FindTypeInAssembly(liquid, "Terraria.GameContent.Liquid.ReplacementLiquidRenderer");
+            var newField = CecilHelpers.FindFieldInType(newType, "Instance");
+            var newMap = GetMethodMap(newType);
+
+            var processor = method.Body.GetILProcessor();
+
+            for (int i = 0; i < method.Body.Instructions.Count; i++)
+            {
+                var inst = method.Body.Instructions[i];
+                if (inst.OpCode == Mono.Cecil.Cil.OpCodes.Call ||
+                    inst.OpCode == Mono.Cecil.Cil.OpCodes.Calli ||
+                    inst.OpCode == Mono.Cecil.Cil.OpCodes.Callvirt)
+                {
+                    var methodCall = inst.Operand as MethodDefinition;
+                    if (methodCall != null && methodCall.FullName.Contains("Terraria.GameContent.Liquid.LiquidRenderer"))
+                    {
+                        var splitName = methodCall.FullName.Split(new string[] { "::" }, StringSplitOptions.None);
+                        if (splitName.Length == 2 && newMap.ContainsKey(splitName[1]))
+                        {
+                            var newMethod = newMap[splitName[1]];
+                            inst.Operand = method.Module.Import(newMethod);
+                            method.Body.Instructions[i] = inst;
+                        }
+                    }
+                } else if (inst.OpCode == Mono.Cecil.Cil.OpCodes.Ldsfld)
+                {
+                    if (inst.Operand == oldField)
+                    {
+                        inst.Operand = method.Module.Import(newField);
+                        method.Body.Instructions[i] = inst;
+                    }
+                }
+            }
+        }
+
+        // Required for v1.3.4.3 only so far
+        public void ReplaceLiquidRenderer()
+        {
+            var method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Main::DoUpdate(Microsoft.Xna.Framework.GameTime)");
+            ReplaceLiquidRendererInMethod(method);
+            method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Main::DrawCapture(Microsoft.Xna.Framework.Rectangle,Terraria.Graphics.Capture.CaptureSettings)");
+            ReplaceLiquidRendererInMethod(method);
+            method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Main::drawWaters(System.Boolean,System.Int32,System.Boolean)");
+            ReplaceLiquidRendererInMethod(method);
+            method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Main::DrawWater(System.Boolean,System.Int32,System.Single)");
+            ReplaceLiquidRendererInMethod(method);
+            method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Main::DrawBlack(System.Boolean)");
+            ReplaceLiquidRendererInMethod(method);
+            method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.GameContent.Shaders.WaterShaderData::StepLiquids()");
+            ReplaceLiquidRendererInMethod(method);
         }
     }
 }

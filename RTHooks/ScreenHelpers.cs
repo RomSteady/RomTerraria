@@ -38,7 +38,7 @@ namespace RTHooks
 
         public static void LaunchDebugger(Object exception)
         {
-            System.Diagnostics.Debugger.Break();
+            System.Diagnostics.Debugger.Launch();
         }
 
         #endregion
@@ -214,7 +214,7 @@ namespace RTHooks
             FieldInfo dedServ = gameType.GetField("dedServ");
             FieldInfo offScreenRange = gameType.GetField("offScreenRange"); // Made public in 1.2.3.1
             FieldInfo targetSet = gameType.GetField("targetSet");
-            FieldInfo waterTarget = gameType.GetField("waterTarget", BindingFlags.Instance | BindingFlags.NonPublic);
+            FieldInfo waterTarget = gameType.GetField("waterTarget"); // Made public static in 1.3.4.x
             FieldInfo backWaterTarget = gameType.GetField("backWaterTarget", BindingFlags.Instance | BindingFlags.NonPublic);
             FieldInfo blackTarget = gameType.GetField("blackTarget", BindingFlags.Instance | BindingFlags.NonPublic);
             FieldInfo tileTarget = gameType.GetField("tileTarget", BindingFlags.Instance | BindingFlags.NonPublic);
