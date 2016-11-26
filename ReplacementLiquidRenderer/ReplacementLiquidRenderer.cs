@@ -46,7 +46,9 @@ namespace Terraria.GameContent.Liquid
 
         private UnifiedRandom _random = new UnifiedRandom();
 
+        private Color[] _dummyBuffer = new Color[40000]; // Adding because something is tromping on memory
         private Color[] _waveMask = new Color[40000];
+        private Color[] _dummyBuffer2 = new Color[40000]; // Adding because something is tromping on memory
 
         private float _frameState;
 
@@ -154,7 +156,7 @@ namespace Terraria.GameContent.Liquid
                             bottomLeftColor.TopRightColor = bottomLeftColor.TopRightColor * opacity;
                             Main.tileBatch.Draw(this._liquidTextures[type], (new Vector2((float)(i << 4), (float)(j << 4)) + drawOffset) + liquidOffset, new Rectangle?(sourceRectangle), bottomLeftColor, Vector2.Zero, 1f, SpriteEffects.None);
                         }
-                        liquidDrawCachePointer1 = liquidDrawCachePointer1 + sizeof(ReplacementLiquidRenderer.LiquidDrawCache);
+                        liquidDrawCachePointer1 = liquidDrawCachePointer1 + 1;
                     }
                 }
             }
@@ -182,7 +184,7 @@ namespace Terraria.GameContent.Liquid
                     {
                         tile = this._tiles[i, j] ?? new Tile();
                         (*type).LiquidLevel = (float)tile.liquid / 255f;
-                        (*type).IsHalfBrick = (!tile.halfBrick() ? false : (*(type + -1 * sizeof(ReplacementLiquidRenderer.LiquidCache))).HasLiquid);
+                        (*type).IsHalfBrick = (!tile.halfBrick() ? false : (*(type - 1)).HasLiquid);
                         (*type).IsSolid = (!WorldGen.SolidOrSlopedTile(tile) ? false : !(*type).IsHalfBrick);
                         (*type).HasLiquid = tile.liquid != 0;
                         (*type).VisibleLiquidLevel = 0f;
@@ -190,20 +192,20 @@ namespace Terraria.GameContent.Liquid
                         (*type).Type = tile.liquidType();
                         if ((*type).IsHalfBrick && !(*type).HasLiquid)
                         {
-                            (*type).Type = (*(type + -1 * sizeof(ReplacementLiquidRenderer.LiquidCache))).Type;
+                            (*type).Type = (*(type - 1)).Type;
                         }
-                        type = type + sizeof(ReplacementLiquidRenderer.LiquidCache);
+                        type = type + 1;
                     }
                 }
                 type = liquidCachePointer;
                 float liquidLevel = 0f;
-                type = type + num * sizeof(ReplacementLiquidRenderer.LiquidCache);
+                type = type + num;
                 for (int k = 2; k < rectangle.Width - 2; k++)
                 {
                     for (int l = 2; l < rectangle.Height - 2; l++)
                     {
                         liquidLevel = 0f;
-                        if ((*type).IsHalfBrick && (*(type + -1 * sizeof(ReplacementLiquidRenderer.LiquidCache))).HasLiquid)
+                        if ((*type).IsHalfBrick && (*(type - 1)).HasLiquid)
                         {
                             liquidLevel = 1f;
                         }
@@ -213,10 +215,10 @@ namespace Terraria.GameContent.Liquid
                         }
                         else
                         {
-                            height = *(type + -rectangle.Height * sizeof(ReplacementLiquidRenderer.LiquidCache));
-                            liquidCache = *(type + rectangle.Height * sizeof(ReplacementLiquidRenderer.LiquidCache));
-                            height1 = *(type + -1 * sizeof(ReplacementLiquidRenderer.LiquidCache));
-                            liquidCache1 = *(type + sizeof(ReplacementLiquidRenderer.LiquidCache));
+                            height = *(type + -rectangle.Height);
+                            liquidCache = *(type + rectangle.Height);
+                            height1 = *(type - 1);
+                            liquidCache1 = *(type + 1);
                             if (height.HasLiquid && liquidCache.HasLiquid && height.Type == liquidCache.Type)
                             {
                                 liquidLevel = height.LiquidLevel + liquidCache.LiquidLevel;
@@ -231,9 +233,9 @@ namespace Terraria.GameContent.Liquid
                         }
                         (*type).VisibleLiquidLevel = liquidLevel;
                         (*type).HasVisibleLiquid = liquidLevel != 0f;
-                        type = type + sizeof(ReplacementLiquidRenderer.LiquidCache);
+                        type = type + 1;
                     }
-                    type = type + 4 * sizeof(ReplacementLiquidRenderer.LiquidCache);
+                    type = type + 4;
                 }
                 type = liquidCachePointer;
                 for (int m = 0; m < rectangle.Width; m++)
@@ -249,13 +251,13 @@ namespace Terraria.GameContent.Liquid
                             for (int o = 1; o <= ReplacementLiquidRenderer.WATERFALL_LENGTH[(*type).Type]; o++)
                             {
                                 single = single - wATERFALLLENGTH;
-                                if ((*(type + o * sizeof(ReplacementLiquidRenderer.LiquidCache))).IsSolid)
+                                if ((*(type + o)).IsSolid)
                                 {
                                     break;
                                 }
-                                (*(type + o * sizeof(ReplacementLiquidRenderer.LiquidCache))).VisibleLiquidLevel = Math.Max((*(type + o * sizeof(ReplacementLiquidRenderer.LiquidCache))).VisibleLiquidLevel, (*type).VisibleLiquidLevel * single);
-                                (*(type + o * sizeof(ReplacementLiquidRenderer.LiquidCache))).Opacity = single;
-                                (*(type + o * sizeof(ReplacementLiquidRenderer.LiquidCache))).VisibleType = (*type).Type;
+                                (*(type + o)).VisibleLiquidLevel = Math.Max((*(type + o)).VisibleLiquidLevel, (*type).VisibleLiquidLevel * single);
+                                (*(type + o)).Opacity = single;
+                                (*(type + o)).VisibleType = (*type).Type;
                             }
                         }
                         if (!(*type).IsSolid)
@@ -267,12 +269,12 @@ namespace Terraria.GameContent.Liquid
                             (*type).VisibleLiquidLevel = 1f;
                             (*type).HasVisibleLiquid = false;
                         }
-                        type = type + sizeof(ReplacementLiquidRenderer.LiquidCache);
+                        type = type + 1;
                     }
-                    type = type + 10 * sizeof(ReplacementLiquidRenderer.LiquidCache);
+                    type = type + 10;
                 }
                 type = liquidCachePointer;
-                type = type + num * sizeof(ReplacementLiquidRenderer.LiquidCache);
+                type = type + num;
                 for (int p = 2; p < rectangle.Width - 2; p++)
                 {
                     for (int q = 2; q < rectangle.Height - 2; q++)
@@ -286,10 +288,10 @@ namespace Terraria.GameContent.Liquid
                         }
                         else
                         {
-                            height = *(type + -1 * sizeof(ReplacementLiquidRenderer.LiquidCache));
-                            liquidCache = *(type + sizeof(ReplacementLiquidRenderer.LiquidCache));
-                            height1 = *(type + -rectangle.Height * sizeof(ReplacementLiquidRenderer.LiquidCache));
-                            liquidCache1 = *(type + rectangle.Height * sizeof(ReplacementLiquidRenderer.LiquidCache));
+                            height = *(type - 1);
+                            liquidCache = *(type + 1);
+                            height1 = *(type + -rectangle.Height);
+                            liquidCache1 = *(type + rectangle.Height);
                             float visibleLiquidLevel = 0f;
                             float visibleLiquidLevel1 = 1f;
                             float single1 = 0f;
@@ -357,22 +359,22 @@ namespace Terraria.GameContent.Liquid
                             }
                             (*type).FrameOffset = zero;
                         }
-                        type = type + sizeof(ReplacementLiquidRenderer.LiquidCache);
+                        type = type + 1;
                     }
-                    type = type + 4 * sizeof(ReplacementLiquidRenderer.LiquidCache);
+                    type = type + 4;
                 }
                 type = liquidCachePointer;
-                type = type + num * sizeof(ReplacementLiquidRenderer.LiquidCache);
+                type = type + num;
                 for (int r = 2; r < rectangle.Width - 2; r++)
                 {
                     for (int s = 2; s < rectangle.Height - 2; s++)
                     {
                         if ((*type).HasVisibleLiquid)
                         {
-                            height = *(type + -1 * sizeof(ReplacementLiquidRenderer.LiquidCache));
-                            liquidCache = *(type + sizeof(ReplacementLiquidRenderer.LiquidCache));
-                            height1 = *(type + -rectangle.Height * sizeof(ReplacementLiquidRenderer.LiquidCache));
-                            liquidCache1 = *(type + rectangle.Height * sizeof(ReplacementLiquidRenderer.LiquidCache));
+                            height = *(type - 1);
+                            liquidCache = *(type + 1);
+                            height1 = *(type + -rectangle.Height);
+                            liquidCache1 = *(type + rectangle.Height);
                             (*type).VisibleLeftWall = (*type).LeftWall;
                             (*type).VisibleRightWall = (*type).RightWall;
                             (*type).VisibleTopWall = (*type).TopWall;
@@ -400,22 +402,22 @@ namespace Terraria.GameContent.Liquid
                                 }
                             }
                         }
-                        type = type + sizeof(ReplacementLiquidRenderer.LiquidCache);
+                        type = type + 1;
                     }
-                    type = type + 4 * sizeof(ReplacementLiquidRenderer.LiquidCache);
+                    type = type + 4;
                 }
                 type = liquidCachePointer;
-                type = type + num * sizeof(ReplacementLiquidRenderer.LiquidCache);
+                type = type + num;
                 for (int t = 2; t < rectangle.Width - 2; t++)
                 {
                     for (int u = 2; u < rectangle.Height - 2; u++)
                     {
                         if ((*type).HasLiquid)
                         {
-                            height = *(type + -1 * sizeof(ReplacementLiquidRenderer.LiquidCache));
-                            liquidCache = *(type + sizeof(ReplacementLiquidRenderer.LiquidCache));
-                            height1 = *(type + -rectangle.Height * sizeof(ReplacementLiquidRenderer.LiquidCache));
-                            liquidCache1 = *(type + rectangle.Height * sizeof(ReplacementLiquidRenderer.LiquidCache));
+                            height = *(type - 1);
+                            liquidCache = *(type);
+                            height1 = *(type + -rectangle.Height);
+                            liquidCache1 = *(type + rectangle.Height);
                             if ((*type).HasTopEdge && !(*type).HasBottomEdge && (*type).HasLeftEdge ^ (*type).HasRightEdge)
                             {
                                 if (!(*type).HasRightEdge)
@@ -443,22 +445,22 @@ namespace Terraria.GameContent.Liquid
                                 }
                             }
                         }
-                        type = type + sizeof(ReplacementLiquidRenderer.LiquidCache);
+                        type = type + 1;
                     }
-                    type = type + 4 * sizeof(ReplacementLiquidRenderer.LiquidCache);
+                    type = type + 4;
                 }
                 type = liquidCachePointer;
-                type = type + num * sizeof(ReplacementLiquidRenderer.LiquidCache);
+                type = type + num;
                 for (int v = 2; v < rectangle.Width - 2; v++)
                 {
                     for (int w = 2; w < rectangle.Height - 2; w++)
                     {
                         if ((*type).HasLiquid)
                         {
-                            height = *(type + -1 * sizeof(ReplacementLiquidRenderer.LiquidCache));
-                            liquidCache = *(type + sizeof(ReplacementLiquidRenderer.LiquidCache));
-                            height1 = *(type + -rectangle.Height * sizeof(ReplacementLiquidRenderer.LiquidCache));
-                            liquidCache1 = *(type + rectangle.Height * sizeof(ReplacementLiquidRenderer.LiquidCache));
+                            height = *(type - 1);
+                            liquidCache = *(type);
+                            height1 = *(type + -rectangle.Height);
+                            liquidCache1 = *(type + rectangle.Height);
                             if (!(*type).HasBottomEdge && !(*type).HasLeftEdge && !(*type).HasTopEdge && !(*type).HasRightEdge)
                             {
                                 if (height1.HasTopEdge && height.HasLeftEdge)
@@ -481,12 +483,12 @@ namespace Terraria.GameContent.Liquid
                                 }
                             }
                         }
-                        type = type + sizeof(ReplacementLiquidRenderer.LiquidCache);
+                        type = type + 1;
                     }
-                    type = type + 4 * sizeof(ReplacementLiquidRenderer.LiquidCache);
+                    type = type + 4;
                 }
                 type = liquidCachePointer;
-                type = type + num * sizeof(ReplacementLiquidRenderer.LiquidCache);
+                type = type + num;
                 fixed (ReplacementLiquidRenderer.LiquidDrawCache* liquidDrawCachePointer = &this._drawCache[0])
                 {
                     fixed (Color* colorPointer = &this._waveMask[0])
@@ -541,18 +543,22 @@ namespace Terraria.GameContent.Liquid
                                     (*vISCOSITYMASK).G = num3;
                                     (*vISCOSITYMASK).B = ReplacementLiquidRenderer.VISCOSITY_MASK[(*type).VisibleType];
                                     (*vISCOSITYMASK).A = wAVEMASKSTRENGTH1;
-                                    ReplacementLiquidRenderer.LiquidCache* liquidCachePointer1 = type - sizeof(ReplacementLiquidRenderer.LiquidCache);
+                                    ReplacementLiquidRenderer.LiquidCache* liquidCachePointer1 = type - 1;
                                     if (y != 2 && !(*liquidCachePointer1).HasVisibleLiquid && !(*liquidCachePointer1).IsSolid && !(*liquidCachePointer1).IsHalfBrick)
                                     {
-                                        *(vISCOSITYMASK - 200 * sizeof(Color)) = *vISCOSITYMASK;
+                                        if (vISCOSITYMASK - 200 < colorPointer)
+                                        {
+                                            System.Diagnostics.Debugger.Launch();
+                                        }
+                                        *(vISCOSITYMASK - 200) = *vISCOSITYMASK;
                                     }
                                 }
-                                type = type + sizeof(ReplacementLiquidRenderer.LiquidCache);
-                                opacity = opacity + sizeof(ReplacementLiquidRenderer.LiquidDrawCache);
-                                vISCOSITYMASK = vISCOSITYMASK + 200 * sizeof(Color);
+                                type = type + 1;
+                                opacity = opacity + 1;
+                                vISCOSITYMASK = vISCOSITYMASK + 200;
                             }
-                            type = type + 4 * sizeof(ReplacementLiquidRenderer.LiquidCache);
-                            vISCOSITYMASK = colorPointer1 + sizeof(Color);
+                            type = type + 4;
+                            vISCOSITYMASK = colorPointer1 + 1;
                         }
                     }
                 }
@@ -581,7 +587,7 @@ namespace Terraria.GameContent.Liquid
                                 Main.dust[num4].noGravity = true;
                             }
                         }
-                        type = type + sizeof(ReplacementLiquidRenderer.LiquidCache);
+                        type = type + 1;
                     }
                 }
             }
