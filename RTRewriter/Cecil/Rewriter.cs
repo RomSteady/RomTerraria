@@ -34,6 +34,42 @@ namespace RTRewriter.Cecil
             this.assemblyOut = assemblyOut;
         }
 
+        // From https://github.com/dougbenham/TerrariaPatcher/blob/ca332bbb04d576f641d6c8de70c65f4eb84ddb61/IL.cs
+        private void MakeLargeAddressAware(string file)
+        {
+            using (var stream = File.Open(file, FileMode.Open, FileAccess.ReadWrite))
+            {
+                const int IMAGE_FILE_LARGE_ADDRESS_AWARE = 0x20;
+
+                var br = new BinaryReader(stream);
+                var bw = new BinaryWriter(stream);
+
+                if (br.ReadInt16() != 0x5A4D)       //No MZ Header
+                    return;
+
+                br.BaseStream.Position = 0x3C;
+                var peloc = br.ReadInt32();         //Get the PE header location.
+
+                br.BaseStream.Position = peloc;
+                if (br.ReadInt32() != 0x4550)       //No PE header
+                    return;
+
+                br.BaseStream.Position += 0x12;
+
+                var position = br.BaseStream.Position;
+                var flags = br.ReadInt16();
+                bool isLAA = (flags & IMAGE_FILE_LARGE_ADDRESS_AWARE) == IMAGE_FILE_LARGE_ADDRESS_AWARE;
+                if (isLAA)                          //Already Large Address Aware
+                    return;
+
+                flags |= IMAGE_FILE_LARGE_ADDRESS_AWARE;
+
+                bw.Seek((int)position, SeekOrigin.Begin);
+                bw.Write(flags);
+                bw.Flush();
+            }
+        }
+
         public void Save()
         {
             terraria.Write(assemblyOut);
@@ -42,6 +78,7 @@ namespace RTRewriter.Cecil
                 hidefprofilestream.Close();
                 hidefprofilestream = null;
             }
+            MakeLargeAddressAware(assemblyOut);
         }
 
         public void AddRainComponent()
@@ -247,7 +284,7 @@ namespace RTRewriter.Cecil
             CecilHelpers.ChangeDefaultInt32Value(method, "System.Int32 Terraria.Main::_renderTargetMaxSize", NewMaxResolution);
 
             //DEBUG
-            CecilHelpers.ChangeDefaultBooleanValue(method, "System.Boolean Terraria.Main::SkipAssemblyLoad", true);
+            //CecilHelpers.ChangeDefaultBooleanValue(method, "System.Boolean Terraria.Main::SkipAssemblyLoad", true);
 
             // Replace InitTargets()
             method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Main::InitTargets()");
@@ -270,6 +307,7 @@ namespace RTRewriter.Cecil
             processor.InsertBefore(firstInstruction, newInstruction);
             nextInstruction = processor.Create(Mono.Cecil.Cil.OpCodes.Call, method.Module.Import(hookMethod));
             processor.InsertAfter(newInstruction, nextInstruction);
+            
 
             // Inject ClientSizeChanged event into Initialize()
             method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Main::Initialize()");
