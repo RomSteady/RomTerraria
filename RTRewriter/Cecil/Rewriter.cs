@@ -14,7 +14,7 @@ namespace RTRewriter.Cecil
         private string assemblyOut;
 
         private const int NewMaxResolution = 8192;
-        private const string NewConfigFileName = "config.rt";
+        private const string NewConfigFileName = "config.rt.json";
 
         private System.IO.MemoryStream hidefprofilestream = null;
 
@@ -252,11 +252,8 @@ namespace RTRewriter.Cecil
 
         public void FixConfigFileNames()
         {
-            var method = CecilHelpers.FindMethodInAssembly(terraria, "System.Boolean Terraria.Main::SaveSettings()");
-            CecilHelpers.ReplaceStringInMethod(method, "config.dat", NewConfigFileName);
-
-            method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Main::OpenSettings()");
-            CecilHelpers.ReplaceStringInMethod(method, "config.dat", NewConfigFileName);
+            var method = CecilHelpers.FindMethodInAssembly(terraria, "System.Void Terraria.Main::.cctor()");
+            CecilHelpers.ReplaceStringInMethod(method, "config.json", NewConfigFileName);
         }
 
         public void ForceGravityGlobeOn()
