@@ -22,7 +22,7 @@ To use:
     Click "Update Terraria." A Terraria.exe file and an RTHooks.dll file will appear in your save game folder.
     Open your Terraria folder on Steam.
     Rename Terraria.exe to Terraria.Original.exe.
-    Copy Terraria.exe, Terraria.exe.config, and RTHooks.dll from your Terraria save game folder to your Terraria folder.
+    Copy Terraria.exe, Terraria.exe.config, ReplacementLiquidRenderer.dll, and RTHooks.dll from your Terraria save game folder to your Terraria folder.
     Launch the game from Steam. 
 
 

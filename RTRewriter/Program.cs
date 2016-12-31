@@ -83,13 +83,14 @@ namespace RTRewriter
             if (FindDetails.Count == 0)
             {
                 FindDetails.Add("Could not find a process named Steam.exe running.");
-                return false;
             }
-
-            // Last chance: let's operate under the assumption that Terraria is in a different Steam install folder
-            string steamConfig = Path.Combine(steamFolder, @"config/config.vdf");
-            FindDetails.Add(String.Format("Checking Steam config at {0}", steamConfig));
-            GamePath = ParseConfig(steamConfig, @"InstallConfigStore/Software/Valve/Steam/apps/105600/installdir");
+            else if (!String.IsNullOrWhiteSpace(steamFolder))
+            {
+                // Last chance: let's operate under the assumption that Terraria is in a different Steam install folder
+                string steamConfig = Path.Combine(steamFolder, @"config/config.vdf");
+                FindDetails.Add(String.Format("Checking Steam config at {0}", steamConfig));
+                GamePath = ParseConfig(steamConfig, @"InstallConfigStore/Software/Valve/Steam/apps/105600/installdir");
+            }
 
             if (String.IsNullOrWhiteSpace(GamePath))
             {
